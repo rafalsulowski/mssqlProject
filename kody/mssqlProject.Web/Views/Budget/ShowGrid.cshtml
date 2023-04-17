@@ -1,0 +1,87 @@
+﻿@model List<mssqlProject.Models.Budget>
+@{
+}
+
+
+    @*Formularz filtrowania:*@
+    <br><br>
+    <form action="ShowGrid" method="POST">
+    <input type="hidden" value="@ViewBag.SortOrder" name="SortOrder" />
+    <input type="hidden" value="" name="CurrentSort" />
+    <input type="hidden" value="1" name="doFilter" />
+    <table>
+        <tr>
+            <label for="minSH">Liczba członków składających się do budżetu, Min:</label>
+            <input type="text" value="" name="minSH"/><br><br>
+        </tr>
+        <tr>
+            <label for="maxSH">Liczba członków składających się do budżetu, Max:</label>
+            <input type="text" value="" name="maxSH"/><br><br>
+        </tr>
+        <tr>
+            <label for="minBS">Rozmiar budżetu: Min  </label>
+            <input type="text" value="" name="minBS"/><br><br>
+        </tr>
+        <tr>
+            <label for="maxBS">Rozmiar budżetu: Max  </label>
+            <input type="text" value="" name="maxBS"/><br><br>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="submit" value="Filtruj" /></td>
+        </tr>
+    </table>
+</form><br>
+
+<form action="ShowGrid" method="POST">
+    <input type="hidden" value="@ViewBag.SortOrder" name="SortOrder" />
+    <input type="hidden" value="" name="CurrentSort" />
+    <input type="hidden" value="-1" name="doFilter" />
+    <input type="submit" value="Zeruj filtry" />
+</form>
+
+<br><br><br><br>
+
+
+
+    <div class="grid">  
+        <br />  
+        <div style="width:90%; margin:0 auto;">  
+            <table id="grid" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellpadding="10" cellspacing="0">  
+                <thead>
+                    <tr>
+                        <th><form action="ShowGrid" method="POST">
+                            <input type="hidden" value="Id" name="SortOrder" />
+                            <input type="hidden" value="@ViewBag.CurrentSort" name="CurrentSort" />
+                            <input type="hidden" value="@TempData["DoFilter"]" name="doFilterForTmp" />
+                            <input type="hidden" value="@TempData["minSH"]" name="minSH" />
+                            <input type="hidden" value="@TempData["maxSH"]" name="maxSH" />
+                            <input type="hidden" value="@TempData["minBS"]" name="minBS" />
+                            <input type="hidden" value="@TempData["maxBS"]" name="maxBS" />
+                            <input type="hidden" value="0" name="doFilter" />
+                            <input type="submit" value="Id" />
+                            </form>
+                        </th>
+                        <th>@Html.ActionLink("TripId", "ShowGrid", new { sortOrder = "TripId", CurrentSort = ViewBag.CurrentSort })</th>
+                        <th>@Html.ActionLink("BankAccunt", "ShowGrid", new { sortOrder = "BankAccunt", CurrentSort = ViewBag.CurrentSort })</th>
+                        <th>@Html.ActionLink("ShareHoldersCount", "ShowGrid", new { sortOrder = "ShareHoldersCount", CurrentSort = ViewBag.CurrentSort })</th>
+                        <th>@Html.ActionLink("BudgetSize", "ShowGrid", new { sortOrder = "BudgetSize", CurrentSort = ViewBag.CurrentSort })</th>  
+                    </tr>  
+                </thead>
+                 <tbody>
+                        if(Model != null)
+                        {
+                            @foreach (var asset in Model)
+                            {
+                                <tr>
+                                    <td>@asset.Id</td>
+                                    <td>@asset.TripId</td>
+                                    <td>@asset.BankAccunt</td> 
+                                    <td>@asset.ShareHoldersCount</td> 
+                                    <td>@asset.BudgetSize</td>
+                                </tr>
+                            }
+                        }
+                 </tbody>
+            </table>
+        </div>  
+    </div>

@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\mssqlProject.Web2.props" />
+</Project>

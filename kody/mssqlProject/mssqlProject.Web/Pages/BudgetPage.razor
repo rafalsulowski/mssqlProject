@@ -1,0 +1,298 @@
+﻿@page "/budget"
+@using mssqlProject.Models;
+@using IgniteUI.Blazor.Controls
+@inject HttpClient Http
+
+<PageTitle>Budżet</PageTitle>
+
+<h1>Budżet</h1>
+<p>Strona do przeglądania, sortowania, filtorwania istniejących budżetów.</p>
+
+
+@if (m_Data == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div style="float: right; margin-right: 150px;" class="btn-group" role="group" aria-label="Button group with nested dropdown">
+        <div class="btn-group" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                @sortPrompt
+            </button>
+            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <a class="dropdown-item" @onclick="() => sortBudgets(1,1)">po Id rosnąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(1,0)">po Id malejąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(2,1)">po TripId rosnąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(2,0)">po TripId malejąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(3,1)">po BankAccunt rosnąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(3,0)">po BankAccunt malejąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(4,1)">po ShareHoldersCount rosnąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(4,0)">po ShareHoldersCount malejąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(5,1)">po BudgetSize rosnąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(5,0)">po BudgetSize malejąco</a>
+            </div>
+        </div>
+    </div>
+
+    <div style="width: 500px;">
+    <label class="form-label">Liczba osób składających się na budżet</label><br/>
+        od: <input style="width:100px;" type="text" @bind="@minProperty1" @bind:event="oninput" />
+        <span style="margin-left: 20px;">do: </span><input style="width:100px;" type="text" @bind="@maxProperty1" @bind:event="oninput" /><br /><br />
+
+        <label class="form-label">Wielkość budżetu:</label><br />
+        od: <input style="width:100px;" type="text" @bind="@minProperty2" @bind:event="oninput" />
+        <span style="margin-left: 20px;">do: </span><input style="width:100px;" type="text" @bind="@maxProperty2" @bind:event="oninput" /><br />
+
+        <br/>
+        <button @onclick="@(() => Filter(@searchWord))">Filtruj</button>
+        <button style="margin-left: 30px;" @onclick="ClearFiltr">Zeruj wsyzstkie filtry i sortowanie</button>
+    </div>
+
+    <div style="margin-top:50px; width: 500px;"> 
+        Wyszukuj po:<br>
+        <input checked="checked" type="radio" name="radioBtn" value="Id" @onclick="@(() => SetSearchSubject("Id"))" /><label style="margin-left:5px;"> Id</label><br>
+        <input type="radio" name="radioBtn" value="TripId" @onclick="@(() => SetSearchSubject("TripId"))"/><label style="margin-left:5px;"> TripId</label><br>
+        <input type="radio" name="radioBtn" value="BankAccunt" @onclick="@(() => SetSearchSubject("BankAccunt"))"/><label style="margin-left:5px;"> BankAccunt</label><br>
+
+        Wyszukiwana fraza: <input style="width:300px;" type="text" @bind="@searchInputContent" @oninput="@((EventArgs) => Filter(EventArgs.Value.ToString()))" />
+    </div>
+    
+    
+    <br />
+    <br />
+    <br />
+    <br />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>TripId</th>
+                <th>BankAccunt</th>
+                <th>ShareHoldersCount</th>
+                <th>BudgetSize</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var data in m_Data)
+            {
+                <tr>
+                    <td>@data.Id</td>
+                    <td>@data.TripId</td>
+                    <td>@data.BankAccunt</td>
+                    <td>@data.ShareHoldersCount</td>
+                    <td>@data.BudgetSize</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />s
+
+@code {
+    private List<Budget>? m_Data;
+    private List<Budget>? m_DataReference;
+    private List<Budget>? m_DataReferenceCopy;
+
+    private string sortPrompt = "Sortowanie";
+    private int minProperty1 { get; set; } = 0;
+    private int maxProperty1 { get; set; } = 0;
+    private int _minProperty1 { get; set; } = -1;
+    private int _maxProperty1 { get; set; } = -1;
+
+    private double minProperty2 { get; set; } = 0;
+    private double maxProperty2 { get; set; } = 0;
+    private double _minProperty2 { get; set; } = -1;
+    private double _maxProperty2 { get; set; } = -1;
+
+    private string searchSubject { get; set; } = "Id";
+    private string searchWord { get; set; } = "";
+    private string searchInputContent { get; set; } = "";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        m_DataReferenceCopy = await Http.GetFromJsonAsync<List<Budget>>("https://localhost:44304/api/Budget");
+        m_DataReference = new List<Budget>(m_DataReferenceCopy);
+        m_Data = new List<Budget>(m_DataReferenceCopy);
+        minProperty1 = m_Data.Min(p => p.ShareHoldersCount);
+        maxProperty1 = m_Data.Max(p => p.ShareHoldersCount);
+        minProperty2 = m_Data.Min(p => p.BudgetSize);
+        maxProperty2 = m_Data.Max(p => p.BudgetSize);
+    }
+
+
+    private void SetSearchSubject(string val) => searchSubject = val;
+
+
+    private void ClearFiltr()
+    {
+        //zerowanie filtrow, sortowania i wyszukiwania
+        m_DataReference = new List<Budget>(m_DataReferenceCopy);
+        m_Data = new List<Budget>(m_DataReferenceCopy);
+        minProperty1 = m_Data.Min(p => p.ShareHoldersCount);
+        maxProperty1 = m_Data.Max(p => p.ShareHoldersCount);
+        minProperty2 = m_Data.Min(p => p.BudgetSize);
+        maxProperty2 = m_Data.Max(p => p.BudgetSize);
+        _minProperty1 = -1;
+        _maxProperty1 = -1;
+        _minProperty2 = -1;
+        _maxProperty2 = -1;
+
+        sortPrompt = "Sortowanie";
+        searchSubject = "Id";
+        searchWord = "";
+        searchInputContent = "";
+    }
+
+
+    private void Filter(string word)
+    {
+        if (m_Data == null)
+            return;
+
+        //1.Wyczyszczenie wyswietlanych danych
+        m_Data.Clear();
+
+        //2.Sprawdzenie czy konieczne jest pracowanie na ogrignalnym zbiorze
+        if (word.Length == 0 || searchWord.Length > word.Length || _minProperty2 > minProperty2
+            || _maxProperty2 < maxProperty2 || _minProperty1 > minProperty1 
+            || _maxProperty1 < maxProperty1)
+        {
+            m_DataReference = new List<Budget>(m_DataReferenceCopy);
+        }
+        
+        //3.W celu dzialania punktu 2 filtrowania trzeba zapisywac poprzednie wartosci
+        //  aby mozna bylo stwierdzic czy zakres filtrow nie zwiekszyl sie
+        searchWord = word;
+        _minProperty1 = minProperty1;
+        _maxProperty1 = maxProperty1;
+        _minProperty2 = minProperty2;
+        _maxProperty2 = maxProperty2;
+
+        //4.Filtracja wstepna na podstawie zaznaczonych argumentow zakresu
+        foreach (var el in m_DataReference)
+        {
+            if (el.BudgetSize <= maxProperty2 && el.BudgetSize >= minProperty2 
+                && el.ShareHoldersCount <= maxProperty1 && el.ShareHoldersCount >= minProperty1)
+                m_Data.Add(el);
+        }
+
+        //5.Filtracja zawierania, dopasuj dane do searchWord jesli jest ono ustawione
+        if (!string.IsNullOrEmpty(searchWord))
+            Search(searchWord);
+
+        //6.Zapis aktualnego modelu jako model referencyjny
+        m_DataReference = new List<Budget>(m_Data);
+    }
+
+
+    private void Search(string word)
+    {
+        List<Budget> tmp = new List<Budget>();
+        switch (searchSubject)
+        {
+            case "Id":
+                foreach (var el in m_Data)
+                {
+                    if (el.Id.ToString().Contains(word))
+                        tmp.Add(el);
+                }
+                break;
+            case "TripId":
+                foreach (var el in m_Data)
+                {
+                    if (el.TripId.ToString().Contains(word))
+                        tmp.Add(el);
+                }
+                break;
+            case "BankAccunt":
+                foreach (var el in m_Data)
+                {
+                    if (el.BankAccunt.Contains(word))
+                        tmp.Add(el);
+                }
+                break;
+            default:
+                break;
+        }
+        m_Data = tmp;
+    }
+
+
+    private void sortBudgets(int sortSubject, int order)
+    {
+        switch(sortSubject)
+        {
+            case 1:
+                if (order == 1)
+                {
+                    sortPrompt = "po Id rosnąco";
+                    m_Data = m_Data.OrderBy(x => x.Id).ToList();
+                }
+                else
+                {
+                    sortPrompt = "po Id malejąco";
+                    m_Data = m_Data.OrderByDescending(x => x.Id).ToList();
+                }
+                break;
+            case 2:
+                if (order == 1)
+                {
+                    sortPrompt = "po TripId rosnąco";
+                    m_Data = m_Data.OrderBy(x => x.TripId).ToList();
+                }
+                else
+                {
+                    sortPrompt = "po TripId malejąco";
+                    m_Data = m_Data.OrderByDescending(x => x.TripId).ToList();
+                }
+                break;
+            case 3:
+                if (order == 1)
+                {
+                    sortPrompt = "po BankAccunt rosnąco";
+                    m_Data = m_Data.OrderBy(x => x.BankAccunt).ToList();
+                }
+                else
+                {
+                    sortPrompt = "po BankAccunt malejąco";
+                    m_Data = m_Data.OrderByDescending(x => x.BankAccunt).ToList();
+                }
+                break;
+            case 4:
+                if (order == 1)
+                {
+                    sortPrompt = "po ShareHoldersCount rosnąco";
+                    m_Data = m_Data.OrderBy(x => x.ShareHoldersCount).ToList();
+                }
+                else
+                {
+                    sortPrompt = "po ShareHoldersCount malejąco";
+                    m_Data = m_Data.OrderByDescending(x => x.ShareHoldersCount).ToList();
+                }
+                break;
+            case 5:
+                if (order == 1)
+                {
+                    sortPrompt = "po BudgetSize rosnąco";
+                    m_Data = m_Data.OrderBy(x => x.BudgetSize).ToList();
+                }
+                else
+                {
+                    sortPrompt = "po BudgetSize malejąco";
+                    m_Data = m_Data.OrderByDescending(x => x.BudgetSize).ToList();
+                }
+                break;
+            default:
+                sortPrompt = "po Id rosnąco";
+                m_Data = m_Data.OrderBy(x => x.Id).ToList();
+                break;
+        }
+    }
+}

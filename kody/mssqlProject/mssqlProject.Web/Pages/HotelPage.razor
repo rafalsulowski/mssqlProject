@@ -1,0 +1,287 @@
+﻿@page "/hotel"
+@using mssqlProject.Models;
+@using IgniteUI.Blazor.Controls
+@inject HttpClient Http
+
+<PageTitle>Hotel</PageTitle>
+
+<h1>Hotel</h1>
+<p>Strona do przeglądania, sortowania, filtorwania istniejących hoteli.</p>
+
+
+@if (m_Data == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div style="float: right; margin-right: 150px;" class="btn-group" role="group" aria-label="Button group with nested dropdown">
+        <div class="btn-group" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                @sortPrompt
+            </button>
+            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <a class="dropdown-item" @onclick="() => sortBudgets(1,1)">po Id rosnąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(1,0)">po Id malejąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(2,1)">po TripId rosnąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(2,0)">po TripId malejąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(3,1)">po Designation rosnąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(3,0)">po Designation malejąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(4,1)">po Location rosnąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(4,0)">po Location malejąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(5,1)">po Price rosnąco</a>
+                <a class="dropdown-item" @onclick="() => sortBudgets(5,0)">po Price malejąco</a>
+            </div>
+        </div>
+    </div>
+
+    <div style="width: 500px;">
+        <label class="form-label">Cena za pobyt:</label><br />
+        od: <input style="width:100px;" type="text" @bind="@minProperty1" @bind:event="oninput" />
+        <span style="margin-left: 20px;">do: </span><input style="width:100px;" type="text" @bind="@maxProperty1" @bind:event="oninput" /><br /><br />
+
+        <br />
+        <button @onclick="@(() => Filter(@searchWord))">Filtruj</button>
+        <button style="margin-left: 30px;" @onclick="ClearFiltr">Zeruj wsyzstkie filtry i sortowanie</button>
+    </div>
+
+    <div style="margin-top:50px; width: 500px;">
+        Wyszukuj po:<br>
+        <input checked="checked" type="radio" name="radioBtn" value="Id" @onclick="@(() => SetSearchSubject("Id"))" /><label style="margin-left:5px;"> Id</label><br>
+        <input type="radio" name="radioBtn" value="TripId" @onclick="@(() => SetSearchSubject("TripId"))" /><label style="margin-left:5px;"> TripId</label><br>
+        <input type="radio" name="radioBtn" value="Designation" @onclick="@(() => SetSearchSubject("Designation"))" /><label style="margin-left:5px;"> Designation</label><br>
+        <input type="radio" name="radioBtn" value="Location" @onclick="@(() => SetSearchSubject("Location"))" /><label style="margin-left:5px;"> Location</label><br>
+
+        Wyszukiwana fraza: <input style="width:300px;" type="text" @bind="@searchInputContent" @oninput="@((EventArgs) => Filter(EventArgs.Value.ToString()))" />
+    </div>
+
+
+    <br />
+    <br />
+    <br />
+    <br />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>TripId</th>
+                <th>Designation</th>
+                <th>Location</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var data in m_Data)
+            {
+                <tr>
+                    <td>@data.Id</td>
+                    <td>@data.TripId</td>
+                    <td>@data.Designation</td>
+                    <td>@data.Location</td>
+                    <td>@data.Price</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+@code {
+    private List<Hotel>? m_Data;
+    private List<Hotel>? m_DataReference;
+    private List<Hotel>? m_DataReferenceCopy;
+
+    private string sortPrompt = "Sortowanie";
+    private double minProperty1 { get; set; } = 0;
+    private double maxProperty1 { get; set; } = 0;
+    private double _minProperty1 { get; set; } = -1;
+    private double _maxProperty1 { get; set; } = -1;
+
+    private string searchSubject { get; set; } = "Id";
+    private string searchWord { get; set; } = "";
+    private string searchInputContent { get; set; } = "";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        m_DataReferenceCopy = await Http.GetFromJsonAsync<List<Hotel>>("https://localhost:44304/api/Hotel");
+        m_DataReference = new List<Hotel>(m_DataReferenceCopy);
+        m_Data = new List<Hotel>(m_DataReferenceCopy);
+        minProperty1 = m_Data.Min(p => p.Price);
+        maxProperty1 = m_Data.Max(p => p.Price);
+    }
+
+
+    private void SetSearchSubject(string val) => searchSubject = val;
+
+
+    private void ClearFiltr()
+    {
+        //zerowanie filtrow, sortowania i wyszukiwania
+        m_DataReference = new List<Hotel>(m_DataReferenceCopy);
+        m_Data = new List<Hotel>(m_DataReferenceCopy);
+        minProperty1 = m_Data.Min(p => p.Price);
+        maxProperty1 = m_Data.Max(p => p.Price);
+        _minProperty1 = -1;
+        _maxProperty1 = -1;
+
+        sortPrompt = "Sortowanie";
+        searchSubject = "Id";
+        searchWord = "";
+        searchInputContent = "";
+    }
+
+
+    private void Filter(string word)
+    {
+        if (m_Data == null)
+            return;
+
+        //1.Wyczyszczenie wyswietlanych danych
+        m_Data.Clear();
+
+        //2.Sprawdzenie czy konieczne jest pracowanie na ogrignalnym zbiorze
+        if (word.Length == 0 || searchWord.Length > word.Length || _minProperty1 > minProperty1
+            || _maxProperty1 < maxProperty1)
+        {
+            m_DataReference = new List<Hotel>(m_DataReferenceCopy);
+        }
+
+        //3.W celu dzialania punktu 2 filtrowania trzeba zapisywac poprzednie wartosci
+        //  aby mozna bylo stwierdzic czy zakres filtrow nie zwiekszyl sie
+        searchWord = word;
+        _minProperty1 = minProperty1;
+        _maxProperty1 = maxProperty1;
+
+        //4.Filtracja wstepna na podstawie zaznaczonych argumentow zakresu
+        foreach (var el in m_DataReference)
+        {
+            if (el.Price <= maxProperty1 && el.Price >= minProperty1)
+                m_Data.Add(el);
+        }
+
+        //5.Filtracja zawierania, dopasuj dane do searchWord jesli jest ono ustawione
+        if (!string.IsNullOrEmpty(searchWord))
+            Search(searchWord);
+
+        //6.Zapis aktualnego modelu jako model referencyjny
+        m_DataReference = new List<Hotel>(m_Data);
+    }
+
+
+    private void Search(string word)
+    {
+        List<Hotel> tmp = new List<Hotel>();
+        switch (searchSubject)
+        {
+            case "Id":
+                foreach (var el in m_Data)
+                {
+                    if (el.Id.ToString().Contains(word))
+                        tmp.Add(el);
+                }
+                break;
+            case "TripId":
+                foreach (var el in m_Data)
+                {
+                    if (el.TripId.ToString().Contains(word))
+                        tmp.Add(el);
+                }
+                break;
+            case "Designation":
+                foreach (var el in m_Data)
+                {
+                    if (el.Designation.Contains(word))
+                        tmp.Add(el);
+                }
+                break;
+            case "Location":
+                foreach (var el in m_Data)
+                {
+                    if (el.Location.Contains(word))
+                        tmp.Add(el);
+                }
+                break;
+            default:
+                break;
+        }
+        m_Data = tmp;
+    }
+
+
+    private void sortBudgets(int sortSubject, int order)
+    {
+        switch (sortSubject)
+        {
+            case 1:
+                if (order == 1)
+                {
+                    sortPrompt = "po Id rosnąco";
+                    m_Data = m_Data.OrderBy(x => x.Id).ToList();
+                }
+                else
+                {
+                    sortPrompt = "po Id malejąco";
+                    m_Data = m_Data.OrderByDescending(x => x.Id).ToList();
+                }
+                break;
+            case 2:
+                if (order == 1)
+                {
+                    sortPrompt = "po TripId rosnąco";
+                    m_Data = m_Data.OrderBy(x => x.TripId).ToList();
+                }
+                else
+                {
+                    sortPrompt = "po TripId malejąco";
+                    m_Data = m_Data.OrderByDescending(x => x.TripId).ToList();
+                }
+                break;
+            case 3:
+                if (order == 1)
+                {
+                    sortPrompt = "po Designation rosnąco";
+                    m_Data = m_Data.OrderBy(x => x.Designation).ToList();
+                }
+                else
+                {
+                    sortPrompt = "po Designation malejąco";
+                    m_Data = m_Data.OrderByDescending(x => x.Designation).ToList();
+                }
+                break;
+            case 4:
+                if (order == 1)
+                {
+                    sortPrompt = "po Location rosnąco";
+                    m_Data = m_Data.OrderBy(x => x.Location).ToList();
+                }
+                else
+                {
+                    sortPrompt = "po Location malejąco";
+                    m_Data = m_Data.OrderByDescending(x => x.Location).ToList();
+                }
+                break;
+            case 5:
+                if (order == 1)
+                {
+                    sortPrompt = "po Price rosnąco";
+                    m_Data = m_Data.OrderBy(x => x.Price).ToList();
+                }
+                else
+                {
+                    sortPrompt = "po Price malejąco";
+                    m_Data = m_Data.OrderByDescending(x => x.Price).ToList();
+                }
+                break;
+            default:
+                sortPrompt = "po Id rosnąco";
+                m_Data = m_Data.OrderBy(x => x.Id).ToList();
+                break;
+        }
+    }
+}

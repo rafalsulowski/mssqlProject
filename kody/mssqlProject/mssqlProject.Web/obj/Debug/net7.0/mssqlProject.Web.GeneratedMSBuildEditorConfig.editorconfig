@@ -1,0 +1,73 @@
+is_global = true
+build_property.TargetFramework = net7.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = mssqlProject.Web
+build_property.RootNamespace = mssqlProject.Web
+build_property.ProjectDir = C:\Users\01159502\Desktop\mssqlProjektZaliczeniowy\kody\mssqlProject\mssqlProject.Web\
+build_property.RazorLangVersion = 7.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\01159502\Desktop\mssqlProjektZaliczeniowy\kody\mssqlProject\mssqlProject.Web
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Users/01159502/Desktop/mssqlProjektZaliczeniowy/kody/mssqlProject/mssqlProject.Web/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/01159502/Desktop/mssqlProjektZaliczeniowy/kody/mssqlProject/mssqlProject.Web/Pages/BudgetPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQnVkZ2V0UGFnZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/01159502/Desktop/mssqlProjektZaliczeniowy/kody/mssqlProject/mssqlProject.Web/Pages/CommentPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29tbWVudFBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/01159502/Desktop/mssqlProjektZaliczeniowy/kody/mssqlProject/mssqlProject.Web/Pages/GroupPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcR3JvdXBQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/01159502/Desktop/mssqlProjektZaliczeniowy/kody/mssqlProject/mssqlProject.Web/Pages/HotelPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG90ZWxQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/01159502/Desktop/mssqlProjektZaliczeniowy/kody/mssqlProject/mssqlProject.Web/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/01159502/Desktop/mssqlProjektZaliczeniowy/kody/mssqlProject/mssqlProject.Web/Pages/ParticipantPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGFydGljaXBhbnRQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/01159502/Desktop/mssqlProjektZaliczeniowy/kody/mssqlProject/mssqlProject.Web/Pages/PlacePage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGxhY2VQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/01159502/Desktop/mssqlProjektZaliczeniowy/kody/mssqlProject/mssqlProject.Web/Pages/PromoterPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvbW90ZXJQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/01159502/Desktop/mssqlProjektZaliczeniowy/kody/mssqlProject/mssqlProject.Web/Pages/TripPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVHJpcFBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/01159502/Desktop/mssqlProjektZaliczeniowy/kody/mssqlProject/mssqlProject.Web/Shared/SurveyPrompt.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFN1cnZleVByb21wdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/01159502/Desktop/mssqlProjektZaliczeniowy/kody/mssqlProject/mssqlProject.Web/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/01159502/Desktop/mssqlProjektZaliczeniowy/kody/mssqlProject/mssqlProject.Web/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-baa0j5yjlx
+
+[C:/Users/01159502/Desktop/mssqlProjektZaliczeniowy/kody/mssqlProject/mssqlProject.Web/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-p4vzkon2m3
